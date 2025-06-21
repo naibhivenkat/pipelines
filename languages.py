@@ -1,0 +1,22 @@
+LANGUAGE_MODELS = {
+    "en": "nlptown/bert-base-multilingual-uncased-sentiment",
+    "fr": "camembert-base",
+    "es": "dccuchile/bert-base-spanish-wwm-cased",
+    "de": "bert-base-german-cased",
+    "it": "dbmdz/bert-base-italian-cased",
+    "pt": "neuralmind/bert-base-portuguese-cased",
+    "nl": "GroNLP/bert-base-dutch-cased",
+    "ru": "DeepPavlov/rubert-base-cased",
+    "zh": "bert-base-chinese",
+    "ja": "cl-tohoku/bert-base-japanese",
+    "ko": "beomi/KcBERT-base",
+    "ar": "asafaya/bert-base-arabic",
+    "hi": "ai4bharat/indic-bert",
+    "bn": "ai4bharat/indic-bert",
+    "ta": "ai4bharat/indic-bert",
+    "tr": "dbmdz/bert-base-turkish-cased",
+    "vi": "NlpHUST/vibert4news-base-cased",
+    "pl": "dkleczek/bert-base-polish-uncased-v1",
+    "id": "indobenchmark/indobert-base-p1",
+    "th": "airesearch/wangchanberta-base-att-spm-uncased"
+}
