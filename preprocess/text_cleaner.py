@@ -1,7 +1,10 @@
 import re
 import emoji
 import pandas as pd
+from pathlib import Path
 
+BASE_DIR = Path(__file__).resolve().parent.resolve().parent
+emoticons = BASE_DIR / "emoticons.tsv"
 
 def load_emoticon_dict(tsv_path):
     df = pd.read_csv(tsv_path, sep="\t")
@@ -53,7 +56,7 @@ def extract_sentences_with_offsets(text):
 
 
 def read_and_split_document(text):
-    emoticon_dict = load_emoticon_dict("emoticons.tsv")
+    emoticon_dict = load_emoticon_dict(emoticons)
     sentence_offsets = extract_sentences_with_offsets(text)
     cleaned_sentences = []
 
