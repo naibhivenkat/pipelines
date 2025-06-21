@@ -7,7 +7,6 @@ LANGUAGE_MODELS = {
     "pt": "neuralmind/bert-base-portuguese-cased",
     "nl": "GroNLP/bert-base-dutch-cased",
     "ru": "DeepPavlov/rubert-base-cased",
-    "zh": "bert-base-chinese",
     "ja": "cl-tohoku/bert-base-japanese",
     "ko": "beomi/KcBERT-base",
     "ar": "asafaya/bert-base-arabic",
@@ -18,5 +17,6 @@ LANGUAGE_MODELS = {
     "vi": "NlpHUST/vibert4news-base-cased",
     "pl": "dkleczek/bert-base-polish-uncased-v1",
     "id": "indobenchmark/indobert-base-p1",
-    "th": "airesearch/wangchanberta-base-att-spm-uncased"
+    "th": "airesearch/wangchanberta-base-att-spm-uncased",
+    "zh": "IDEA-CCNL/Erlangshen-Roberta-330M-Sentiment",
 }

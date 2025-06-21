@@ -1,7 +1,7 @@
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, Trainer, TrainingArguments
 from datasets import load_dataset
-from languages import LANGUAGE_MODELS
-import os
+from pipeline.languages import LANGUAGE_MODELS
+
 
 def train_model(lang: str, train_path: str, test_path: str):
     model_checkpoint = LANGUAGE_MODELS[lang]
