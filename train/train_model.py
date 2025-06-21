@@ -6,11 +6,19 @@ from pipeline.languages import LANGUAGE_MODELS
 def train_model(lang: str, train_path: str, test_path: str):
     model_checkpoint = LANGUAGE_MODELS[lang]
     tokenizer = AutoTokenizer.from_pretrained(model_checkpoint)
-    model = AutoModelForSequenceClassification.from_pretrained(model_checkpoint, num_labels=3)
+    model = AutoModelForSequenceClassification.from_pretrained(
+        model_checkpoint, num_labels=3)
 
-    dataset = load_dataset('csv', data_files={'train': train_path, 'test': test_path})
-    dataset = dataset.map(lambda x: tokenizer(x['text'], truncation=True, padding='max_length'), batched=True)
-    dataset.set_format(type='torch', columns=['input_ids', 'attention_mask', 'label'])
+    dataset = load_dataset('csv',
+                           data_files={
+                               'train': train_path,
+                               'test': test_path
+                           })
+    dataset = dataset.map(
+        lambda x: tokenizer(x['text'], truncation=True, padding='max_length'),
+        batched=True)
+    dataset.set_format(type='torch',
+                       columns=['input_ids', 'attention_mask', 'label'])
 
     training_args = TrainingArguments(
         output_dir=f'models/{lang}_model',
@@ -22,12 +30,10 @@ def train_model(lang: str, train_path: str, test_path: str):
         logging_steps=10,
     )
 
-    trainer = Trainer(
-        model=model,
-        args=training_args,
-        train_dataset=dataset['train'],
-        eval_dataset=dataset['test']
-    )
+    trainer = Trainer(model=model,
+                      args=training_args,
+                      train_dataset=dataset['train'],
+                      eval_dataset=dataset['test'])
 
     trainer.train()
     model.save_pretrained(f'models/{lang}_model')

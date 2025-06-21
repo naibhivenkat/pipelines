@@ -1,0 +1,50 @@
+# Python virtual environments
+.venv/
+venv/
+ENV/
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Poetry
+poetry.lock
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# Environment variables
+.env
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE settings
+.idea/
+.vscode/
+
+# Build
+build/
+dist/
+*.egg-info/
+
+# Logs
+*.log
+
+# Coverage
+.coverage
+htmlcov/
+
+# MyPy, Pyright, Pylint, etc.
+.mypy_cache/
+.pyright/
+.pytest_cache/
+
+# Docker
+*.pid
+*.tar
+
+# Kubernetes and Helm
+*.kubeconfig
+*.helmrc

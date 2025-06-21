@@ -6,6 +6,7 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.resolve().parent
 emoticons = BASE_DIR / "emoticons.tsv"
 
+
 def load_emoticon_dict(tsv_path):
     df = pd.read_csv(tsv_path, sep="\t")
     return dict(zip(df["emoticon"], df["meaning"]))

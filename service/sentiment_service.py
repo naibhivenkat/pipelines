@@ -6,6 +6,7 @@ from langdetect.lang_detect_exception import LangDetectException
 
 sentiment_model = SentimentPipeline()
 
+
 def detect_language(text):
     text = text.strip()
     langid_lang, langid_conf = langid_classify(text)
@@ -28,6 +29,7 @@ def detect_language(text):
     if len(text) > 20 and langdetect_lang:
         return langdetect_lang
     return langid_lang
+
 
 def analyze_document(text: str) -> dict:
     language = detect_language(text)[:2]

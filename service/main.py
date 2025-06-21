@@ -4,8 +4,10 @@ from service.sentiment_service import analyze_document
 
 app = FastAPI()
 
+
 class DocumentRequest(BaseModel):
     text: str
+
 
 @app.post("/analyze")
 def analyze(req: DocumentRequest):
@@ -15,13 +17,16 @@ def analyze(req: DocumentRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @app.get("/health")
 def health():
     return {"status": "ok"}
 
+
 @app.get("/")
 def root():
     return {"message": "Sentiment API is running. Use /analyze or /docs"}
+
 
 if __name__ == "__main__":
     import uvicorn

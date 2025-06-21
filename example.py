@@ -5,11 +5,10 @@ sentiment_model = SentimentPipeline()
 
 text = "😢"
 
-
-
 from langid import classify as langid_classify
 from langdetect import detect_langs
 from langdetect.lang_detect_exception import LangDetectException
+
 
 def detect_language(text):
     text = text.strip()
@@ -41,10 +40,10 @@ def detect_language(text):
     # Otherwise fallback to langid
     return langid_lang
 
+
 language = detect_language(text)[:2]
 sentence = read_and_split_document(text)
-seniments= sentiment_model.analyze_sentiment(sentence, language)
+seniments = sentiment_model.analyze_sentiment(sentence, language)
 #print(f"Sentiment: {label}, Scores: {scores}, Lang : {language}")
 print(seniments)
 print(f"Lang Detected : {language}")
-

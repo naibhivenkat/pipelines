@@ -9,9 +9,11 @@ from pipeline.languages import LANGUAGE_MODELS
 
 
 class SentimentPipeline:
+
     def __init__(self):
         self.loaded_models = {}
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.device = torch.device(
+            "cuda" if torch.cuda.is_available() else "cpu")
 
     def load_model(self, lang):
         if lang not in LANGUAGE_MODELS:
@@ -19,8 +21,11 @@ class SentimentPipeline:
 
         if lang not in self.loaded_models:
             model_name = LANGUAGE_MODELS[lang]
-            tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=False, force_download=True)
-            model = AutoModelForSequenceClassification.from_pretrained(model_name)
+            tokenizer = AutoTokenizer.from_pretrained(model_name,
+                                                      use_fast=False,
+                                                      force_download=True)
+            model = AutoModelForSequenceClassification.from_pretrained(
+                model_name)
             model.to(self.device)
             model.eval()
             self.loaded_models[lang] = (tokenizer, model)
@@ -38,7 +43,10 @@ class SentimentPipeline:
             return {0: "NEG", 1: "POS"}
 
     def classify_sentiment(self, text, tokenizer, model, label_map):
-        inputs = tokenizer(text, return_tensors="pt", truncation=True, padding=True)
+        inputs = tokenizer(text,
+                           return_tensors="pt",
+                           truncation=True,
+                           padding=True)
         inputs = {k: v.to(self.device) for k, v in inputs.items()}
         with torch.no_grad():
             logits = model(**inputs).logits
@@ -53,7 +61,8 @@ class SentimentPipeline:
 
         sentence_results = []
         for item in sentences:
-            sentiment, confidence, _ = self.classify_sentiment(item['sentence'], tokenizer, model, label_map)
+            sentiment, confidence, _ = self.classify_sentiment(
+                item['sentence'], tokenizer, model, label_map)
             sentence_results.append({
                 "start_offset": item["start_offset"],
                 "end_offset": item["end_offset"],
@@ -63,8 +72,10 @@ class SentimentPipeline:
 
         # Document-level sentiment
         # full_text = " ".join([read_and_split_document(item.get("cleaned", item["sentence"])) for item in sentences])
-        full_text = " ".join([item.get("cleaned", item["sentence"]) for item in sentences])
-        sentiment, confidence, _ = self.classify_sentiment(full_text, tokenizer, model, label_map)
+        full_text = " ".join(
+            [item.get("cleaned", item["sentence"]) for item in sentences])
+        sentiment, confidence, _ = self.classify_sentiment(
+            full_text, tokenizer, model, label_map)
         document_result = {
             "start_offset": sentences[0]["start_offset"],
             "end_offset": sentences[-1]["end_offset"],
