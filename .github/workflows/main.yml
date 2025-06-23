@@ -4,10 +4,10 @@ on:
   push:
     branches: [main]
   pull_request:
-    branches: [main]
 
 permissions:
-  contents: write  # Required to push changes (e.g. version bump)
+  contents: write
+  packages: write  # Needed to push Docker images to GitHub Packages
 
 jobs:
   build-and-deploy:
@@ -35,17 +35,39 @@ jobs:
         pip install yapf
         yapf -dr .
 
-# Uncomment and update the following steps if you want Docker integration
-#    - name: Build Docker image
-#      run: docker build -t your-dockerhub-username/sentiment-api:latest .
-#
-#    - name: Push Docker image to DockerHub
-#      run: |
-#        echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-#        docker push your-dockerhub-username/sentiment-api:latest
+    - name: Extract name and version from pyproject.toml
+      id: meta
+      run: |
+        NAME=$(poetry version | awk '{print $1}')
+        VERSION=$(poetry version | awk '{print $2}')
+        echo "name=$NAME" >> $GITHUB_OUTPUT
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+    - name: Log in to GitHub Container Registry
+      run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+    - name: Build and push Docker image (staging)
+      if: github.event_name == 'pull_request' || github.ref != 'refs/heads/main'
+      run: |
+        IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/${{ steps.meta.outputs.name }}:${{ steps.meta.outputs.version }}-staging
+        docker build \
+          --build-arg NAME=${{ steps.meta.outputs.name }} \
+          --build-arg VERSION=${{ steps.meta.outputs.version }} \
+          -t $IMAGE_NAME .
+        docker push $IMAGE_NAME
+
+    - name: Build and push Docker image (release)
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      run: |
+        IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/${{ steps.meta.outputs.name }}:${{ steps.meta.outputs.version }}
+        docker build \
+          --build-arg NAME=${{ steps.meta.outputs.name }} \
+          --build-arg VERSION=${{ steps.meta.outputs.version }} \
+          -t $IMAGE_NAME .
+        docker push $IMAGE_NAME
 
     - name: Increment version
-      if: github.event_name == 'push'
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
       env:
         GH_TOKEN: ${{ secrets.GH_TOKEN }}
       run: |
@@ -55,4 +77,3 @@ jobs:
         git add pyproject.toml
         git commit -m "CI: Bump version"
         git push https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git HEAD:main
-    
