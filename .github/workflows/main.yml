@@ -128,7 +128,6 @@ jobs:
         curl -s -X POST "${ZULIP_SITE_URL}/api/v1/messages" \
           -u "${ZULIP_BOT_EMAIL}:${ZULIP_BOT_API_KEY}" \
           --data-urlencode type=stream \
-          --data-urlencode to="ci-cd" \
+          --data-urlencode to="gha-notification" \
           --data-urlencode subject="GitHub Actions" \
           --data-urlencode content="$CONTENT"
-    
