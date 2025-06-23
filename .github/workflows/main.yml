@@ -35,7 +35,7 @@ jobs:
     - name: Run code style check (YAPF)
       run: |
         pip install yapf
-        yapf -dr .
+        yapf -dr ..
 
 #    - name: Extract name and version from pyproject.toml
 #      id: meta
@@ -101,4 +101,3 @@ jobs:
               \"ts\": $(date +%s)
             }]
           }" ${{ secrets.SLACK_WEBHOOK_URL }}
-      env : 
