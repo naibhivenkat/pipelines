@@ -48,25 +48,25 @@ jobs:
     - name: Log in to GitHub Container Registry
       run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-    - name: Build and push Docker image (staging)
-      if: github.event_name == 'pull_request' || (github.ref != 'refs/heads/main' && !startsWith(github.ref, 'refs/tags/'))
-      run: |
-        IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/${{ steps.meta.outputs.name }}:${{ steps.meta.outputs.version }}-staging
-        docker build \
-          --build-arg NAME=${{ steps.meta.outputs.name }} \
-          --build-arg VERSION=${{ steps.meta.outputs.version }} \
-          -t $IMAGE_NAME .
-        docker push $IMAGE_NAME
-
-    - name: Build and push Docker image (release)
-      if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
-      run: |
-        IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/${{ steps.meta.outputs.name }}:${{ steps.meta.outputs.version }}
-        docker build \
-          --build-arg NAME=${{ steps.meta.outputs.name }} \
-          --build-arg VERSION=${{ steps.meta.outputs.version }} \
-          -t $IMAGE_NAME .
-        docker push $IMAGE_NAME
+#    - name: Build and push Docker image (staging)
+#      if: github.event_name == 'pull_request' || (github.ref != 'refs/heads/main' && !startsWith(github.ref, 'refs/tags/'))
+#      run: |
+#        IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/${{ steps.meta.outputs.name }}:${{ steps.meta.outputs.version }}-staging
+#        docker build \
+#          --build-arg NAME=${{ steps.meta.outputs.name }} \
+#          --build-arg VERSION=${{ steps.meta.outputs.version }} \
+#          -t $IMAGE_NAME .
+#        docker push $IMAGE_NAME
+#
+#    - name: Build and push Docker image (release)
+#      if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
+#      run: |
+#        IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/${{ steps.meta.outputs.name }}:${{ steps.meta.outputs.version }}
+#        docker build \
+#          --build-arg NAME=${{ steps.meta.outputs.name }} \
+#          --build-arg VERSION=${{ steps.meta.outputs.version }} \
+#          -t $IMAGE_NAME .
+#        docker push $IMAGE_NAME
 
     - name: Bump version after tag (only on tag push)
       if: startsWith(github.ref, 'refs/tags/')
