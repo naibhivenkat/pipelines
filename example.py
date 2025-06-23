@@ -1,13 +1,19 @@
 from pipeline.sentiment_model import SentimentPipeline
 from preprocess.text_cleaner import read_and_split_document
 
-sentiment_model = SentimentPipeline()
+sentiment_model     = SentimentPipeline()
 
 text = "😢"
+
+
+
 
 from langid import classify as langid_classify
 from langdetect import detect_langs
 from langdetect.lang_detect_exception import LangDetectException
+
+
+
 
 
 def detect_language(text):
@@ -41,9 +47,19 @@ def detect_language(text):
     return langid_lang
 
 
+
+
+
+
+
 language = detect_language(text)[:2]
 sentence = read_and_split_document(text)
 seniments = sentiment_model.analyze_sentiment(sentence, language)
 #print(f"Sentiment: {label}, Scores: {scores}, Lang : {language}")
 print(seniments)
 print(f"Lang Detected : {language}")
+
+
+
+
+

@@ -35,7 +35,14 @@ jobs:
     - name: Run code style check (YAPF)
       run: |
         pip install yapf
-        yapf -dr ..
+        OUTPUT=$(yapf -dr .)
+        echo "$OUTPUT"
+        if [ -n "$OUTPUT" ]; then
+          echo "❌ Code formatting issues found."
+          exit 1
+        else
+          echo "✅ Code is properly formatted."
+        fi
 
 #    - name: Extract name and version from pyproject.toml
 #      id: meta
