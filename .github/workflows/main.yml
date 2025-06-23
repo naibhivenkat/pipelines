@@ -109,7 +109,6 @@ jobs:
 #            }]
 #          }" ${{ secrets.SLACK_WEBHOOK_URL }}
 
-
     - name: Notify Zulip
       if: always()
       run: |
