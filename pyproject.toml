@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "backend-document-sentiment-pipeline"
-version = "0.0.2"
+version = "0.0.3"
 description = "A Python project with common NLP and document-sentiment-pipeline"
 authors = ["Naibhivenkat <venkat.naibhi@gmail.com>"]
 readme = "README.md"
