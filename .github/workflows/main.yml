@@ -24,13 +24,13 @@ jobs:
       with:
         python-version: '3.11.4'
 
-    - name: Install Poetry
-      run: |
-        curl -sSL https://install.python-poetry.org | python3 -
-        echo "$HOME/.local/bin" >> $GITHUB_PATH
-
-    - name: Install dependencies
-      run: poetry install
+#    - name: Install Poetry
+#      run: |
+#        curl -sSL https://install.python-poetry.org | python3 -
+#        echo "$HOME/.local/bin" >> $GITHUB_PATH
+#
+#    - name: Install dependencies
+#      run: poetry install
 
     - name: Run code style check (YAPF)
       run: |
@@ -44,48 +44,48 @@ jobs:
           echo "✅ Code is properly formatted."
         fi
 
-    - name: Extract name and version from pyproject.toml
-      id: meta
-      run: |
-        NAME=$(poetry version | awk '{print $1}')
-        VERSION=$(poetry version | awk '{print $2}')
-        echo "name=$NAME" >> $GITHUB_OUTPUT
-        echo "version=$VERSION" >> $GITHUB_OUTPUT
+#    - name: Extract name and version from pyproject.toml
+#      id: meta
+#      run: |
+#        NAME=$(poetry version | awk '{print $1}')
+#        VERSION=$(poetry version | awk '{print $2}')
+#        echo "name=$NAME" >> $GITHUB_OUTPUT
+#        echo "version=$VERSION" >> $GITHUB_OUTPUT
 
     - name: Log in to GitHub Container Registry
       run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-    - name: Build and push Docker image (staging)
-      if: github.event_name == 'pull_request' || (github.ref != 'refs/heads/main' && !startsWith(github.ref, 'refs/tags/'))
-      run: |
-        IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/${{ steps.meta.outputs.name }}:${{ steps.meta.outputs.version }}-staging
-        docker build \
-          --build-arg NAME=${{ steps.meta.outputs.name }} \
-          --build-arg VERSION=${{ steps.meta.outputs.version }} \
-          -t $IMAGE_NAME .
-        docker push $IMAGE_NAME
-
-    - name: Build and push Docker image (release)
-      if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
-      run: |
-        IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/${{ steps.meta.outputs.name }}:${{ steps.meta.outputs.version }}
-        docker build \
-          --build-arg NAME=${{ steps.meta.outputs.name }} \
-          --build-arg VERSION=${{ steps.meta.outputs.version }} \
-          -t $IMAGE_NAME .
-        docker push $IMAGE_NAME
-
-    - name: Bump version after tag (only on tag push)
-      if: startsWith(github.ref, 'refs/tags/')
-      env:
-        GH_TOKEN: ${{ secrets.GH_TOKEN }}
-      run: |
-        poetry version patch
-        git config user.name "github-actions"
-        git config user.email "github-actions@github.com"
-        git add pyproject.toml
-        git commit -m "CI: Bump version post-tag"
-        git push https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git HEAD:main
+#    - name: Build and push Docker image (staging)
+#      if: github.event_name == 'pull_request' || (github.ref != 'refs/heads/main' && !startsWith(github.ref, 'refs/tags/'))
+#      run: |
+#        IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/${{ steps.meta.outputs.name }}:${{ steps.meta.outputs.version }}-staging
+#        docker build \
+#          --build-arg NAME=${{ steps.meta.outputs.name }} \
+#          --build-arg VERSION=${{ steps.meta.outputs.version }} \
+#          -t $IMAGE_NAME .
+#        docker push $IMAGE_NAME
+#
+#    - name: Build and push Docker image (release)
+#      if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
+#      run: |
+#        IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/${{ steps.meta.outputs.name }}:${{ steps.meta.outputs.version }}
+#        docker build \
+#          --build-arg NAME=${{ steps.meta.outputs.name }} \
+#          --build-arg VERSION=${{ steps.meta.outputs.version }} \
+#          -t $IMAGE_NAME .
+#        docker push $IMAGE_NAME
+#
+#    - name: Bump version after tag (only on tag push)
+#      if: startsWith(github.ref, 'refs/tags/')
+#      env:
+#        GH_TOKEN: ${{ secrets.GH_TOKEN }}
+#      run: |
+#        poetry version patch
+#        git config user.name "github-actions"
+#        git config user.email "github-actions@github.com"
+#        git add pyproject.toml
+#        git commit -m "CI: Bump version post-tag"
+#        git push https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git HEAD:main
 
 #    - name: Slack
 #      if: always()  # ensures it runs even if previous steps fail
