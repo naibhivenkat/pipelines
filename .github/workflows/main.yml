@@ -125,15 +125,10 @@ jobs:
 
         CONTENT="**GitHub CI/CD - ${STATUS}**\n**Repository:** \`${{ github.repository }}\`\n**Branch:** \`${{ github.ref_name }}\`\n**Commit:** \`${{ github.sha }}\`\n**By:** \`${{ github.actor }}\`"
 
-        PAYLOAD=$(jq -n \
-          --arg type "stream" \
-          --arg to "ci-cd" \
-          --arg subject "GitHub Actions" \
-          --arg content "$CONTENT" \
-          '{type: $type, to: $to, subject: $subject, content: $content}')
-
         curl -s -X POST "${ZULIP_SITE_URL}/api/v1/messages" \
           -u "${ZULIP_BOT_EMAIL}:${ZULIP_BOT_API_KEY}" \
-          -H "Content-Type: application/json" \
-          -d "$PAYLOAD"
+          --data-urlencode type=stream \
+          --data-urlencode to="ci-cd" \
+          --data-urlencode subject="GitHub Actions" \
+          --data-urlencode content="$CONTENT"
     
