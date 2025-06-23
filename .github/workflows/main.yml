@@ -83,11 +83,11 @@ jobs:
     - name: Notify Slack
       if: always()  # ensures it runs even if previous steps fail
       run: |
-        STATUS="Success"
+        STATUS="✅ Success"
         COLOR="green"
         if [ "${{ job.status }}" != "success" ]; then
-          STATUS="Failed"
-          COLOR="red"
+          STATUS="❌Failed"
+          COLOR="danger"
         fi
 
         curl -X POST -H 'Content-type: application/json' \
