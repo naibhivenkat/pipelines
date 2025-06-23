@@ -44,17 +44,17 @@ jobs:
           echo "✅ Code is properly formatted."
         fi
 
-#    - name: Extract name and version from pyproject.toml
-#      id: meta
-#      run: |
-#        NAME=$(poetry version | awk '{print $1}')
-#        VERSION=$(poetry version | awk '{print $2}')
-#        echo "name=$NAME" >> $GITHUB_OUTPUT
-#        echo "version=$VERSION" >> $GITHUB_OUTPUT
+    - name: Extract name and version from pyproject.toml
+      id: meta
+      run: |
+        NAME=$(poetry version | awk '{print $1}')
+        VERSION=$(poetry version | awk '{print $2}')
+        echo "name=$NAME" >> $GITHUB_OUTPUT
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
 
     - name: Log in to GitHub Container Registry
       run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-
+#
 #    - name: Build and push Docker image (staging)
 #      if: github.event_name == 'pull_request' || (github.ref != 'refs/heads/main' && !startsWith(github.ref, 'refs/tags/'))
 #      run: |
@@ -108,23 +108,65 @@ jobs:
 #              \"ts\": $(date +%s)
 #            }]
 #          }" ${{ secrets.SLACK_WEBHOOK_URL }}
-    - name: Install jq
-      run: sudo apt-get update && sudo apt-get install -y jq
+#
+#    - name: Install jq
+#      run: sudo apt-get update && sudo apt-get install -y jq
+#
+#    - name: Zulip
+#      if: always()
+#      env:
+#        ZULIP_SITE_URL: ${{ secrets.ZULIP_SITE_URL }}
+#        ZULIP_BOT_EMAIL: ${{ secrets.ZULIP_BOT_EMAIL }}
+#        ZULIP_BOT_API_KEY: ${{ secrets.ZULIP_BOT_API_KEY }}
+#      run: |
+#        STATUS="✅ Success"
+#        if [ "${{ job.status }}" != "success" ]; then
+#          STATUS="❌ Failed"
+#        fi
+#
+#        CONTENT="**GitHub CI/CD - ${STATUS}**\n**Repository:** \`${{ github.repository }}\`\n**Branch:** \`${{ github.ref_name }}\`\n**Commit:** \`${{ github.sha }}\`\n**By:** \`${{ github.actor }}\`"
+#
+#        curl -s -X POST "${ZULIP_SITE_URL}/api/v1/messages" \
+#          -u "${ZULIP_BOT_EMAIL}:${ZULIP_BOT_API_KEY}" \
+#          --data-urlencode type=stream \
+#          --data-urlencode to="gha-notification" \
+#          --data-urlencode subject="GitHub Actions" \
+#          --data-urlencode content="$CONTENT"
 
-    - name: Notify Zulip
+
+    - name: Notify Slack and Zulip
       if: always()
       env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         ZULIP_SITE_URL: ${{ secrets.ZULIP_SITE_URL }}
         ZULIP_BOT_EMAIL: ${{ secrets.ZULIP_BOT_EMAIL }}
         ZULIP_BOT_API_KEY: ${{ secrets.ZULIP_BOT_API_KEY }}
       run: |
+        sudo apt-get update && sudo apt-get install -y jq
+    
         STATUS="✅ Success"
+        COLOR="green"
         if [ "${{ job.status }}" != "success" ]; then
           STATUS="❌ Failed"
+          COLOR="danger"
         fi
-
+    
+        # Slack notification
+        curl -X POST -H 'Content-type: application/json' \
+          --data "{
+            \"attachments\": [{
+              \"fallback\": \"GitHub Action status: $STATUS\",
+              \"color\": \"$COLOR\",
+              \"title\": \"GitHub CI/CD - $STATUS\",
+              \"text\": \"Repository: ${{ github.repository }}\nBranch: ${{ github.ref_name }}\nCommit: ${{ github.sha }}\nBy: ${{ github.actor }}\",
+              \"footer\": \"GitHub Actions | Sent to Slack\",
+              \"ts\": $(date +%s)
+            }]
+          }" $SLACK_WEBHOOK_URL
+    
+        # Zulip notification
         CONTENT="**GitHub CI/CD - ${STATUS}**\n**Repository:** \`${{ github.repository }}\`\n**Branch:** \`${{ github.ref_name }}\`\n**Commit:** \`${{ github.sha }}\`\n**By:** \`${{ github.actor }}\`"
-
+    
         curl -s -X POST "${ZULIP_SITE_URL}/api/v1/messages" \
           -u "${ZULIP_BOT_EMAIL}:${ZULIP_BOT_API_KEY}" \
           --data-urlencode type=stream \
