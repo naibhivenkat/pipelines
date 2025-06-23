@@ -111,15 +111,27 @@ jobs:
 
     - name: Notify Zulip
       if: always()
+      env:
+        ZULIP_SITE_URL: ${{ secrets.ZULIP_SITE_URL }}
+        ZULIP_BOT_EMAIL: ${{ secrets.ZULIP_BOT_EMAIL }}
+        ZULIP_BOT_API_KEY: ${{ secrets.ZULIP_BOT_API_KEY }}
       run: |
         STATUS="✅ Success"
+        COLOR="green"
         if [ "${{ job.status }}" != "success" ]; then
           STATUS="❌ Failed"
+          COLOR="red"
         fi
 
-        curl -s -X POST "${{ secrets.ZULIP_SITE_URL }}/api/v1/messages" \
-          -u "${{ secrets.ZULIP_BOT_EMAIL }}:${{ secrets.ZULIP_BOT_API_KEY }}" \
+        CONTENT="**GitHub CI/CD - $STATUS**
+        **Repository:** \`${{ github.repository }}\`
+        **Branch:** \`${{ github.ref_name }}\`
+        **Commit:** \`${{ github.sha }}\`
+        **By:** \`${{ github.actor }}\`"
+
+        curl -s -X POST "${ZULIP_SITE_URL}/api/v1/messages" \
+          -u "${ZULIP_BOT_EMAIL}:${ZULIP_BOT_API_KEY}" \
           --data-urlencode type=stream \
-          --data-urlencode to="ci-cd" \
+          --data-urlencode to=ci-cd \
           --data-urlencode subject="GitHub Actions" \
-          --data-urlencode content="*Status:* ${STATUS}\n*Repo:* ${{ github.repository }}\n*Branch:* ${{ github.ref_name }}\n*Commit:* ${{ github.sha }}\n*By:* ${{ github.actor }}"
+          --data-urlencode content="$CONTENT"
