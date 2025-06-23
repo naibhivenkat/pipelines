@@ -108,23 +108,19 @@ jobs:
 #              \"ts\": $(date +%s)
 #            }]
 #          }" ${{ secrets.SLACK_WEBHOOK_URL }}
-    - name: Notify Rocket.Chat
+
+
+    - name: Notify Zulip
       if: always()
       run: |
-          STATUS="✅ Success"
-          COLOR="#36a64f"
-          if [ "${{ job.status }}" != "success" ]; then
-            STATUS="❌ Failed"
-            COLOR="#ff0000"
-          fi
-          
-          curl -X POST -H 'Content-type: application/json' \
-            --data "{
-              \"attachments\": [{
-                \"title\": \"GitHub CI/CD - $STATUS\",
-                \"text\": \"Repository: ${{ github.repository }}\nBranch: ${{ github.ref_name }}\nCommit: ${{ github.sha }}\nBy: ${{ github.actor }}\",
-                \"color\": \"$COLOR\",
-                \"footer\": \"GitHub Actions | Sent to Rocket.Chat\",
-                \"ts\": $(date +%s)
-              }]
-            }" ${{ secrets.ROCKETCHAT_WEBHOOK_URL }}
+        STATUS="✅ Success"
+        if [ "${{ job.status }}" != "success" ]; then
+          STATUS="❌ Failed"
+        fi
+
+        curl -s -X POST "${{ secrets.ZULIP_SITE_URL }}/api/v1/messages" \
+          -u "${{ secrets.ZULIP_BOT_EMAIL }}:${{ secrets.ZULIP_BOT_API_KEY }}" \
+          --data-urlencode type=stream \
+          --data-urlencode to="ci-cd" \
+          --data-urlencode subject="GitHub Actions" \
+          --data-urlencode content="*Status:* ${STATUS}\n*Repo:* ${{ github.repository }}\n*Branch:* ${{ github.ref_name }}\n*Commit:* ${{ github.sha }}\n*By:* ${{ github.actor }}"
