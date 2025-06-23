@@ -108,6 +108,8 @@ jobs:
 #              \"ts\": $(date +%s)
 #            }]
 #          }" ${{ secrets.SLACK_WEBHOOK_URL }}
+    - name: Install jq
+      run: sudo apt-get update && sudo apt-get install -y jq
 
     - name: Notify Zulip
       if: always()
@@ -117,21 +119,21 @@ jobs:
         ZULIP_BOT_API_KEY: ${{ secrets.ZULIP_BOT_API_KEY }}
       run: |
         STATUS="✅ Success"
-        COLOR="green"
         if [ "${{ job.status }}" != "success" ]; then
           STATUS="❌ Failed"
-          COLOR="red"
         fi
 
-        CONTENT="**GitHub CI/CD - $STATUS**
-        **Repository:** \`${{ github.repository }}\`
-        **Branch:** \`${{ github.ref_name }}\`
-        **Commit:** \`${{ github.sha }}\`
-        **By:** \`${{ github.actor }}\`"
+        CONTENT="**GitHub CI/CD - ${STATUS}**\n**Repository:** \`${{ github.repository }}\`\n**Branch:** \`${{ github.ref_name }}\`\n**Commit:** \`${{ github.sha }}\`\n**By:** \`${{ github.actor }}\`"
+
+        PAYLOAD=$(jq -n \
+          --arg type "stream" \
+          --arg to "ci-cd" \
+          --arg subject "GitHub Actions" \
+          --arg content "$CONTENT" \
+          '{type: $type, to: $to, subject: $subject, content: $content}')
 
         curl -s -X POST "${ZULIP_SITE_URL}/api/v1/messages" \
           -u "${ZULIP_BOT_EMAIL}:${ZULIP_BOT_API_KEY}" \
-          --data-urlencode type=stream \
-          --data-urlencode to=ci-cd \
-          --data-urlencode subject="GitHub Actions" \
-          --data-urlencode content="$CONTENT"
+          -H "Content-Type: application/json" \
+          -d "$PAYLOAD"
+    
