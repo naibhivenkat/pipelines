@@ -79,3 +79,25 @@ jobs:
         git add pyproject.toml
         git commit -m "CI: Bump version post-tag"
         git push https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git HEAD:main
+
+    - name: Notify Slack
+      if: always()  # ensures it runs even if previous steps fail
+      run: |
+        STATUS="Success"
+        COLOR="good"
+        if [ "${{ job.status }}" != "success" ]; then
+          STATUS="Failed"
+          COLOR="danger"
+        fi
+
+        curl -X POST -H 'Content-type: application/json' \
+          --data "{
+            \"attachments\": [{
+              \"fallback\": \"GitHub Action status: $STATUS\",
+              \"color\": \"$COLOR\",
+              \"title\": \"GitHub CI/CD - $STATUS\",
+              \"text\": \"Repository: ${{ github.repository }}\nBranch: ${{ github.ref_name }}\nCommit: ${{ github.sha }}\nBy: ${{ github.actor }}\",
+              \"footer\": \"GitHub Actions | Sent to Slack\",
+              \"ts\": $(date +%s)
+            }]
+          }" ${{ secrets.SLACK_WEBHOOK_URL }}
